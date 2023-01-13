@@ -1,50 +1,79 @@
 package Story.Persons;
 
+import Exceptions.DoorIsAlreadyOpenedException;
+import Story.Actions.Flyable;
+import Story.Items.Item;
+import Story.Items.ItemType;
+import Story.Items.Peephole;
 
-import Story.Action_details;
-import Story.Actions.ActionsWithItems;
-import Story.Actions.ActionsWithoutItems;
-import Story.Items.Items;
+import java.util.ArrayList;
+import java.util.Objects;
 
-public final class Carlson extends Characters implements ActionsWithoutItems, ActionsWithItems {
+public final class Carlson extends Characters implements Flyable {
     private static Carlson instance = null;
+    private ArrayList<Item> inventory = new ArrayList<>(2); // 2 items max because of the two pockets or two hand, IDK
     private Carlson() {
-        super("Карлсон", "обычный", Races.HUMAN_HELICOPTER);
+        super("Карлсон", "что-то задумал", Races.HUMAN_HELICOPTER);
     }
+    public Carlson(Carlson copy) {
+        super(copy.getName(), "default", copy.getRace());
+    }
+
     public static Carlson getInstance() {
         if (instance == null) {
             instance = new Carlson();
         }
         return instance;
     }
-    @Override
-    public String actionI(int i, Items item) {
-        switch (i) {
-            case 1 -> {
-                item.changeStat("пропали");
-                return Action_details.MAYBE + " стащил " + item.getName();
-            }
-            case 2 -> {
-                item.changeStat("очищен");
-                return "вынул " + item.getName() + Action_details.FROM_GLAZOK;
-            }
-        }
-        return null;
+        private Carlson dummy;
+    public boolean blinks() {
+        System.out.println("Карлсон подмигнул");
+        return Objects.equals(instance.getStatus(), "что-то задумал");
     }
-
+    public void steal(Item i) {
+        i.changeStat("украден");
+        System.out.println("Карлсон украл " + i);
+    }
     @Override
-    public String action(int i) {
-        switch (i) {
-            case 1 -> {
-                instance.object_status = "что-то задумал";
-                return Action_details.MYSTERIOUSLY + " подмигнул";
-            }
-            case 2 -> {
-                instance.object_status = "исчез";
-                return Action_details.SOMEWHERE + " улетал";
-            }
+    public void fly() {
+        instance.changeStat("Улетел");
+        System.out.println("Карлсон улетел");
+    }
+    public void pullOutItemFromPeephole(Peephole o, Malysh m) {
+        System.out.println("Карлсон достал из " + o + " " + o.getNameOfItemInside());
+        inventory.add(o.getNameOfItemInside());
+        o.becomeEmpty();
+        m.finishThinking();
+    }
+    public class Cigarette extends Item {
+        public Cigarette() {
+            super("сигарета", "default", ItemType.TABACCO);
         }
-        return null;
+        public void addInInventory(){
+            inventory.add(this);
+        }
+    }
+    public void breakIntoRoom() {
+        abstract class Room {
+            protected boolean doorClosed = true;
+            public abstract void openDoor();
+        }
+        Room room = new Room() {
+            @Override
+            public void openDoor() {
+                try {
+                    if (doorClosed) {
+                        System.out.println("Карлсон открыл дверь");
+                    } else {
+                        throw new DoorIsAlreadyOpenedException("Дверь уже открыта");
+                    }
+                    } catch (DoorIsAlreadyOpenedException e) {
+                    System.out.println(e.getMessage());
+                    doorClosed = false;
+                }
+            }
+        };
+        room.openDoor();
     }
 }
 

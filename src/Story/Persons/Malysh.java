@@ -1,14 +1,17 @@
 package Story.Persons;
+import Story.Actions.Worriable;
+import Story.Items.Sofa;
+import Story.Thoughts;
 
-import Story.Action_details;
-import Story.Actions.ActionsWithoutItems;
-import Story.Items.Items;
-
-public final class Malysh extends Characters implements ActionsWithoutItems {
+public final class Malysh extends Characters implements Worriable {
     private static Malysh instance = null;
+    private byte lvlOfStress = 0;
+    public boolean enoughTimeToThink = true;
+    public boolean enshuredNobodyOnSofa;
     private Malysh() {
         super("Малыш", "обычный", Races.HUMAN);
     }
+
     public static Malysh getInstance() {
         if (instance == null) {
             instance = new Malysh();
@@ -16,21 +19,40 @@ public final class Malysh extends Characters implements ActionsWithoutItems {
         return instance;
     }
     @Override
-    public String action(int i) {
-        switch (i) {
-            case 1 -> {
-                instance.object_status = "нервничает";
-                return Action_details.EVEN_MORE + " встревожился";
+    public void worry() {
+        lvlOfStress += 45;
+        switch (lvlOfStress) {
+            case 45 -> {
+                instance.changeStat("встревожился");
             }
-            case 2 -> {
-                instance.object_status = "нервничает еще больше";
-                return Action_details.SERIOUSLY + " разволновался";
-            }
-            case 3 -> {
-                instance.object_status = "в растерянности";
-                return Action_details.HAD_NO_TIME + " думать " + Action_details.ABOUT_THIS;
+            case 90 -> {
+                instance.changeStat("разволновался не на шутку");
             }
         }
-        return null;
+        System.out.println(getName() + instance.getStatus());
     }
+    @Override
+    public void calmDown() {
+        lvlOfStress -= 45;
+    }
+
+    public void thinkWhatIsWorse(Thoughts firstThougt, Thoughts secondThought) {
+        if (firstThougt.getBadness() > secondThought.getBadness()) {
+            System.out.println("Малыш думает, что " + firstThougt.getContent() + " хуже, чем " + secondThought);
+        } else {
+            System.out.println("Малыш думает, что " + secondThought.getContent() + " хуже, чем " + firstThougt);
+        }
+        worry();
+    }
+    public boolean lookTroughPeephole(Sofa sofa) {
+        return enshuredNobodyOnSofa = sofa.getNumberOfSitters() == 0;
+        }
+    public void finishThinking() {
+        enoughTimeToThink = false;
+        System.out.println("Малыш закончил размышлять");
+    }
+//    @Override
+//    public Characters getCharacter() {
+//        return instance;
+//    }
 }

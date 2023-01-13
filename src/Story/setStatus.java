@@ -1,5 +1,5 @@
 package Story;
 
-public interface changeStatus {
+public interface setStatus {
     public void changeStat(String newStatus);
 }
